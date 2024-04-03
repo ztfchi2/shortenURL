@@ -1,7 +1,12 @@
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
+from fastapi.responses import RedirectResponse
+
+import data
 import shorten
+import os
+import config
 
 app = FastAPI()
 
@@ -14,5 +19,6 @@ async def read_index():
 async def shorten_URL(url):
     short_url = shorten.shorten_url(url)
     return {"message": "success","url":short_url}
+
 
 app.mount("/", StaticFiles(directory="public"), name="static")
