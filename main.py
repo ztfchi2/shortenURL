@@ -1,12 +1,13 @@
+import os.path
+
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 from fastapi.responses import RedirectResponse
 
+import config
 import data
 import shorten
-import os
-import config
 
 app = FastAPI()
 
@@ -17,8 +18,17 @@ async def read_index():
 
 @app.get("/url/short")
 async def shorten_URL(url):
-    short_url = shorten.shorten_url(url)
+    token = shorten.shorten_token()
+    data.set(token,url)
+    short_url = os.path.join(config.host,token)
     return {"message": "success","url":short_url}
+
+@app.get("/{shorten_token}")
+async def redirect(shorten_token):
+    origin_url = data.get(shorten_token)
+    if origin_url is None:
+        origin_url = "/"
+    return RedirectResponse(url=origin_url)
 
 
 app.mount("/", StaticFiles(directory="public"), name="static")
